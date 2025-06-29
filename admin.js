@@ -124,3 +124,9 @@ window.deleteLoan = function (userKey, loanId) {
     location.reload();
   });
 };
+// 🚪 Logout ফাংশন
+window.logout = function () {
+  localStorage.removeItem("isAdmin");
+  window.location.href = "login.html";
+};
+

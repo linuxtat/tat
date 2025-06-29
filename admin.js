@@ -32,18 +32,29 @@ get(usersRef).then(snapshot => {
       // Schedule rows with date column
       const scheduleRows = loan.schedule.map((inst, i) => `
         <tr>
-          <td>${inst.installment}</td>
-          <td>${inst.amount}</td>
-          <td>${inst.status === 'approved' ? '✅ Paid' : inst.status === 'requested' ? '📨 অনুরোধ' : '⌛ Pending'}</td>
-          <td>${inst.date || 'N/A'}</td>
-          <td>
-            ${inst.status === 'requested'
-  ? `<button onclick="approveInstallment('${userKey}', '${loanId}', ${i})">Approve</button>
-     <button onclick="rejectInstallment('${userKey}', '${loanId}', ${i})">Reject</button>`
-  : ""}
-          </td>
-        </tr>
-      `).join("");
+    <td>${inst.installment}</td>
+    <td>${inst.amount}</td>
+    <td>
+      ${
+        inst.status.startsWith('approved:')
+        ? `✅ ${inst.status.replace('approved:', '')}`
+        : inst.status === 'approved'
+        ? '✅ Paid'
+        : inst.status === 'requested'
+        ? `📨 অনুরোধ (${inst.note || 'নোট নেই'})`
+        : inst.status === 'rejected'
+        ? '❌ বাতিল'
+        : '⌛ Pending'
+      }
+    </td>
+    <td>
+      ${inst.status === 'requested'
+        ? `<button onclick="approveInstallment('${userKey}', '${loanId}', ${i}, '${inst.note || ''}')">Approve</button>
+           <button onclick="rejectInstallment('${userKey}', '${loanId}', ${i})">Reject</button>`
+        : ""}
+    </td>
+  </tr>
+`).join("");
 
       div.innerHTML = `
         <h3>👤 ${userName} (${userPhone})</h3>
@@ -78,9 +89,10 @@ window.approveLoan = function (userKey, loanId) {
 };
 
 // Approve Installment
-window.approveInstallment = function (userKey, loanId, index) {
+window.approveInstallment = function (userKey, loanId, index, note = "") {
+
   update(ref(db, `users/${userKey}/loans/${loanId}/schedule/${index}`), {
-    status: "approved"
+  status: `approved:${note}`
   }).then(() => {
     alert("✅ কিস্তি অনুমোদিত হয়েছে");
     location.reload();

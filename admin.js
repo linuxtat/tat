@@ -5,6 +5,12 @@ import {
   update,
   remove
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+// এডমিন অথরাইজেশন চেক
+if (localStorage.getItem("isAdmin") !== "true") {
+  alert("❌ আপনি অনুমোদিত নন!");
+  window.location.href = "login.html";
+}
+
 
 const container = document.getElementById("adminLoanList");
 const usersRef = ref(db, "users");

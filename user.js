@@ -42,10 +42,20 @@ if (!userKey) {
 
           <td>${inst.date || 'N/A'}</td>
           <td>
-            ${loan.status === "approved" && (inst.status === 'pending' || inst.status === 'rejected')
-  ? `<button onclick="requestPayment('${loanId}', ${i})">Paid Request</button>`
-  : ""}
-          </td>
+  ${loan.status === "approved" && (inst.status === 'pending' || inst.status === 'rejected')
+    ? `<input type="text" id="input_${loanId}_${i}" placeholder="রেফারেন্স" style="width: 80px;" />
+       <button onclick="requestPayment('${loanId}', ${i})">Paid Request</button>`
+    : inst.status.startsWith('approved:')
+    ? `${inst.status.replace('approved:', '✅ ')}`
+    : inst.status === 'approved'
+    ? '✅ Paid'
+    : inst.status === 'requested'
+    ? '📨 অনুরোধ পাঠানো'
+    : inst.status === 'rejected'
+    ? '❌ বাতিল'
+    : '⌛ Pending'}
+</td>
+
         </tr>
       `).join("");
 
@@ -68,10 +78,22 @@ if (!userKey) {
 }
 
 window.requestPayment = function (loanId, index) {
+  const inputId = `input_${loanId}_${index}`;
+  const message = document.getElementById(inputId)?.value.trim();
+
+  if (!message) {
+    alert("অনুগ্রহ করে একটি রেফারেন্স বা টাকার পরিমাণ লিখুন।");
+    return;
+  }
+
   const instRef = ref(db, `users/${userKey}/loans/${loanId}/schedule/${index}`);
 
-  update(instRef, { status: "requested" }).then(() => {
+  update(instRef, {
+    status: "requested",
+    note: message
+  }).then(() => {
     alert("✅ Paid request পাঠানো হয়েছে!");
     location.reload();
   });
 };
+

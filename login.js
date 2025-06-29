@@ -14,13 +14,16 @@ window.loginUser = function () {
     return;
   }
 
-  const isAdmin = name === "tushar13" && phone === "01712499829";
+  const password = document.getElementById("adminPassword")?.value.trim();
+const isAdmin = name === "tushar13" && phone === "01712499829" && password === "admin13";
+
   const dbRef = ref(db);
 
   if (isAdmin) {
-    window.location.href = "admin.html";
-    return;
-  }
+  localStorage.setItem("isAdmin", "true");
+  window.location.href = "admin.html";
+  return;
+}
 
   get(child(dbRef, `users/${name}_${phone}`)).then(snapshot => {
     if (snapshot.exists()) {

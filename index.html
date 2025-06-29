@@ -38,7 +38,8 @@
     <input type="number" id="months"><br>
     <button onclick="calculateEMI()">হিসাব করুন</button>
 
-    <div class="summary" id="loanSummary" style="display:none;">
+   <div id="pdfContent" style="margin-top:20px;">
+     <div class="summary" id="loanSummary" style="display:none;">
       <h3>📌 লোনের সারসংক্ষেপ</h3>
       <p id="netAmountResult"></p>
       <p id="emiResult"></p>
@@ -72,6 +73,7 @@
         </tr>
       </tfoot>
     </table>
+     </div>
   </div>
   <script>
     // Set max date to today for loanStartDate input

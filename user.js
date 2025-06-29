@@ -34,11 +34,16 @@ if (!userKey) {
           <td>${inst.installment}</td>
           <td>${inst.amount}</td>
           <td>${
-  inst.status === 'approved' ? '✅ Paid' :
-  inst.status === 'requested' ? '📨 অনুরোধ পাঠানো' :
-  inst.status === 'rejected' ? '❌ বাতিল' :
-  '⌛ Pending'
-}</td>
+    inst.status.startsWith('approved:')
+      ? `✅ ${inst.status.replace('approved:', '')}`
+      : inst.status === 'approved'
+      ? '✅ Paid'
+      : inst.status === 'requested'
+      ? '📨 অনুরোধ পাঠানো'
+      : inst.status === 'rejected'
+      ? '❌ বাতিল'
+      : '⌛ Pending'
+  }</td>
 
           <td>${inst.date || 'N/A'}</td>
           <td>

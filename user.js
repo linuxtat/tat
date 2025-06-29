@@ -29,40 +29,32 @@ if (!userKey) {
 
       const div = document.createElement("div");
 
-      const scheduleRows = loan.schedule.map((inst, i) => `
-        <tr>
-          <td>${inst.installment}</td>
-          <td>${inst.amount}</td>
-          <td>${
-    inst.status.startsWith('approved:')
-      ? `✅ ${inst.status.replace('approved:', '')}`
-      : inst.status === 'approved'
-      ? '✅ Paid'
-      : inst.status === 'requested'
-      ? '📨 অনুরোধ পাঠানো'
-      : inst.status === 'rejected'
-      ? '❌ বাতিল'
-      : '⌛ Pending'
-  }</td>
+      const scheduleRows = loan.schedule.map((inst, i) => {
+        const statusDisplay = typeof inst.status === 'string' && inst.status.startsWith('approved:')
+          ? `✅ ${inst.status.split(':')[1]}`
+          : inst.status === 'approved'
+          ? '✅ Paid'
+          : inst.status === 'requested'
+          ? '📨 অনুরোধ পাঠানো'
+          : inst.status === 'rejected'
+          ? '❌ বাতিল'
+          : '⌛ Pending';
 
-          <td>${inst.date || 'N/A'}</td>
-          <td>
-  ${loan.status === "approved" && (inst.status === 'pending' || inst.status === 'rejected')
-    ? `<input type="text" id="input_${loanId}_${i}" placeholder="রেফারেন্স" style="width: 80px;" />
-       <button onclick="requestPayment('${loanId}', ${i})">Paid Request</button>`
-    : inst.status.startsWith('approved:')
-    ? `${inst.status.replace('approved:', '✅ ')}`
-    : inst.status === 'approved'
-    ? '✅ Paid'
-    : inst.status === 'requested'
-    ? '📨 অনুরোধ পাঠানো'
-    : inst.status === 'rejected'
-    ? '❌ বাতিল'
-    : '⌛ Pending'}
-</td>
+        const actionDisplay = loan.status === "approved" && (inst.status === 'pending' || inst.status === 'rejected')
+          ? `<input type="text" id="input_${loanId}_${i}" placeholder="রেফারেন্স" style="width: 80px;" />
+             <button onclick="requestPayment('${loanId}', ${i})">Paid Request</button>`
+          : '';
 
-        </tr>
-      `).join("");
+        return `
+          <tr>
+            <td>${inst.installment}</td>
+            <td>${inst.amount}</td>
+            <td>${statusDisplay}</td>
+            <td>${inst.date || 'N/A'}</td>
+            <td>${actionDisplay}</td>
+          </tr>
+        `;
+      }).join("");
 
       div.innerHTML = `
         <h3>📌 লোন: ৳${loan.amount} (${loan.months} মাস)</h3>
@@ -77,6 +69,7 @@ if (!userKey) {
         </table>
         <hr>
       `;
+
       loanList.appendChild(div);
     });
   });
@@ -101,4 +94,3 @@ window.requestPayment = function (loanId, index) {
     location.reload();
   });
 };
-

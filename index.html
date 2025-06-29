@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <title>লোন হিসাব</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <script type="module" src="./firebase.js"></script>
+  <script type="module" src="./script.js"></script>
+  <style>
+    body { font-family: sans-serif; background: #f0f0f5; padding: 20px; }
+    input, button { padding: 10px; margin: 5px 0; width: 100%; max-width: 300px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; background: white; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: right; }
+    th { background: #ddd; }
+    tfoot td { font-weight: bold; background: #fff5e6; }
+    .container { background: white; padding: 20px; border-radius: 8px; max-width: 800px; margin: auto; }
+    .summary { margin-top: 20px; background: #fff5e6; padding: 15px; border-radius: 8px; }
+    .summary p { margin: 5px 0; font-weight: bold; }
+    #userForm { display: none; margin-top: 10px; }
+    #loginLink { position: absolute; top: 10px; right: 20px; }
+  </style>
+</head>
+<body>
+  <a href="login.html" id="loginLink">🔐 লগ ইন</a>
+  <div class="container">
+    <h1>📊 লোন হিসাব</h1>
+    <label>লোন নেয়ার তারিখ:</label><br>
+    <input type="date" id="loanStartDate" max="" /><br>
+    <label>লোনের পরিমাণ (৳):</label><br>
+    <input type="number" id="amount"><br>
+    <label>প্রসেসিং ফি (%):</label><br>
+    <input type="number" id="processingFee"><br>
+    <label>সুদের হার (বাৎসরিক %):</label><br>
+    <input type="number" id="annualRate"><br>
+    <label>সুদের হার (মাসিক %):</label><br>
+    <input type="number" id="monthlyRate"><br>
+    <label>সময় (মাসে):</label><br>
+    <input type="number" id="months"><br>
+    <button onclick="calculateEMI()">হিসাব করুন</button>
+
+    <div class="summary" id="loanSummary" style="display:none;">
+      <h3>📌 লোনের সারসংক্ষেপ</h3>
+      <p id="netAmountResult"></p>
+      <p id="emiResult"></p>
+      <p id="totalPrincipalLine"></p>
+      <p id="totalInterestLine"></p>
+      <p id="totalPaymentLine"></p>
+      <button onclick="downloadPDF()">📥 PDF ডাউনলোড করুন</button>
+
+      <div id="userForm">
+        <h4>🙋 আপনার নাম ও মোবাইল নাম্বার দিন:</h4>
+        <input type="text" id="userName" placeholder="আপনার নাম">
+        <input type="text" id="userPhone" placeholder="মোবাইল নাম্বার">
+        <button onclick="submitLoanRequest()">📨 সাবমিট</button>
+        <p id="submitMessage" style="color:green; font-weight:bold;"></p>
+      </div>
+    </div>
+
+    <table id="scheduleTable" style="display:none;">
+      <thead>
+        <tr><th>মাস</th><th>মূলধন (৳)</th><th>সুদ (৳)</th><th>মোট কিস্তি (৳)</th><th>বাকি ঋণ (৳)</th><th>তারিখ</th></tr>
+      </thead>
+      <tbody id="scheduleBody"></tbody>
+      <tfoot>
+        <tr>
+          <td>মোট</td>
+          <td id="totalPrincipal">0.00</td>
+          <td id="totalInterest">0.00</td>
+          <td id="totalPayment">0.00</td>
+          <td>—</td>
+          <td>—</td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+  <script>
+    // Set max date to today for loanStartDate input
+    const loanStartInput = document.getElementById('loanStartDate');
+    if(loanStartInput){
+      const today = new Date().toISOString().split('T')[0];
+      loanStartInput.setAttribute('max', today);
+      loanStartInput.value = today;
+    }
+  </script>
+</body>
+</html>

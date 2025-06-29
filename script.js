@@ -94,7 +94,7 @@ window.calculateEMI = function () {
 };
 
 window.downloadPDF = function () {
-  const element = document.getElementById("loanSummary");
+  const element = document.getElementById("pdfContent");
   html2pdf().from(element).save();
 };
 

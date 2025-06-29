@@ -94,3 +94,9 @@ window.requestPayment = function (loanId, index) {
     location.reload();
   });
 };
+// 🚪 Logout ফাংশন
+window.logout = function () {
+  localStorage.removeItem("user");
+  window.location.href = "login.html";
+};
+

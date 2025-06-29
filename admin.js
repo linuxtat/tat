@@ -38,8 +38,9 @@ get(usersRef).then(snapshot => {
           <td>${inst.date || 'N/A'}</td>
           <td>
             ${inst.status === 'requested'
-              ? `<button onclick="approveInstallment('${userKey}', '${loanId}', ${i})">Approve</button>`
-              : ""}
+  ? `<button onclick="approveInstallment('${userKey}', '${loanId}', ${i})">Approve</button>
+     <button onclick="rejectInstallment('${userKey}', '${loanId}', ${i})">Reject</button>`
+  : ""}
           </td>
         </tr>
       `).join("");
@@ -82,6 +83,15 @@ window.approveInstallment = function (userKey, loanId, index) {
     status: "approved"
   }).then(() => {
     alert("✅ কিস্তি অনুমোদিত হয়েছে");
+    location.reload();
+  });
+};
+// Reject Installment
+window.rejectInstallment = function (userKey, loanId, index) {
+  update(ref(db, `users/${userKey}/loans/${loanId}/schedule/${index}`), {
+    status: "rejected"
+  }).then(() => {
+    alert("❌ কিস্তি বাতিল করা হয়েছে");
     location.reload();
   });
 };

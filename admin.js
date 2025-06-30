@@ -5,12 +5,12 @@ import {
   update,
   remove
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
 // এডমিন অথরাইজেশন চেক
 if (localStorage.getItem("isAdmin") !== "true") {
   alert("❌ আপনি অনুমোদিত নন!");
   window.location.href = "login.html";
 }
-
 
 const container = document.getElementById("adminLoanList");
 const usersRef = ref(db, "users");
@@ -35,32 +35,32 @@ get(usersRef).then(snapshot => {
 
       const div = document.createElement("div");
 
-      // Schedule rows with date column
       const scheduleRows = loan.schedule.map((inst, i) => `
         <tr>
-    <td>${inst.installment}</td>
-    <td>${inst.amount}</td>
-    <td>
-      ${
-        inst.status.startsWith('approved:')
-        ? `✅ ${inst.status.replace('approved:', '')}`
-        : inst.status === 'approved'
-        ? '✅ Paid'
-        : inst.status === 'requested'
-        ? `📨 অনুরোধ (${inst.note || 'নোট নেই'})`
-        : inst.status === 'rejected'
-        ? '❌ বাতিল'
-        : '⌛ Pending'
-      }
-    </td>
-    <td>
-      ${inst.status === 'requested'
-        ? `<button onclick="approveInstallment('${userKey}', '${loanId}', ${i}, '${inst.note || ''}')">Approve</button>
-           <button onclick="rejectInstallment('${userKey}', '${loanId}', ${i})">Reject</button>`
-        : ""}
-    </td>
-  </tr>
-`).join("");
+          <td>${inst.installment}</td>
+          <td>${inst.amount}</td>
+          <td>
+            ${
+              typeof inst.status === 'string' && inst.status.startsWith('approved:')
+              ? `✅ ${inst.status.replace('approved:', '')}`
+              : inst.status === 'approved'
+              ? '✅ Paid'
+              : inst.status === 'requested'
+              ? `📨 অনুরোধ (${inst.note || 'নোট নেই'})`
+              : inst.status === 'rejected'
+              ? '❌ বাতিল'
+              : '⌛ Pending'
+            }
+          </td>
+          <td>${inst.date || 'N/A'}</td>
+          <td>
+            ${inst.status === 'requested'
+              ? `<button onclick="approveInstallment('${userKey}', '${loanId}', ${i}, '${inst.note || ''}')">Approve</button>
+                 <button onclick="rejectInstallment('${userKey}', '${loanId}', ${i})">Reject</button>`
+              : ""}
+          </td>
+        </tr>
+      `).join("");
 
       div.innerHTML = `
         <h3>👤 ${userName} (${userPhone})</h3>
@@ -96,14 +96,14 @@ window.approveLoan = function (userKey, loanId) {
 
 // Approve Installment
 window.approveInstallment = function (userKey, loanId, index, note = "") {
-
   update(ref(db, `users/${userKey}/loans/${loanId}/schedule/${index}`), {
-  status: `approved:${note}`
+    status: `approved:${note}`
   }).then(() => {
     alert("✅ কিস্তি অনুমোদিত হয়েছে");
     location.reload();
   });
 };
+
 // Reject Installment
 window.rejectInstallment = function (userKey, loanId, index) {
   update(ref(db, `users/${userKey}/loans/${loanId}/schedule/${index}`), {
@@ -124,9 +124,9 @@ window.deleteLoan = function (userKey, loanId) {
     location.reload();
   });
 };
+
 // 🚪 Logout ফাংশন
 window.logout = function () {
   localStorage.removeItem("isAdmin");
   window.location.href = "login.html";
 };
-

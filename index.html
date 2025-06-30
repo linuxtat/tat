@@ -18,6 +18,7 @@
     .summary p { margin: 5px 0; font-weight: bold; }
     #userForm { display: none; margin-top: 10px; }
     #loginLink { position: absolute; top: 10px; right: 20px; }
+    #globalSummary { background: #e6ffe6; margin-top: 30px; padding: 15px; border-radius: 10px; font-weight: bold; }
   </style>
 </head>
 <body>
@@ -38,43 +39,55 @@
     <input type="number" id="months"><br>
     <button onclick="calculateEMI()">হিসাব করুন</button>
 
-   <div id="pdfContent" style="margin-top:20px;">
-     <div class="summary" id="loanSummary" style="display:none;">
-      <h3>📌 লোনের সারসংক্ষেপ</h3>
-      <p id="netAmountResult"></p>
-      <p id="emiResult"></p>
-      <p id="totalPrincipalLine"></p>
-      <p id="totalInterestLine"></p>
-      <p id="totalPaymentLine"></p>
-      <button onclick="downloadPDF()">📥 PDF ডাউনলোড করুন</button>
+    <div id="pdfContent" style="margin-top:20px;">
+      <div class="summary" id="loanSummary" style="display:none;">
+        <h3>📌 লোনের সারসংক্ষেপ</h3>
+        <p id="netAmountResult"></p>
+        <p id="emiResult"></p>
+        <p id="totalPrincipalLine"></p>
+        <p id="totalInterestLine"></p>
+        <p id="totalPaymentLine"></p>
+        <button onclick="downloadPDF()">📥 PDF ডাউনলোড করুন</button>
 
-      <div id="userForm">
-        <h4>🙋 আপনার নাম ও মোবাইল নাম্বার দিন:</h4>
-        <input type="text" id="userName" placeholder="আপনার নাম">
-        <input type="text" id="userPhone" placeholder="মোবাইল নাম্বার">
-        <button onclick="submitLoanRequest()">📨 সাবমিট</button>
-        <p id="submitMessage" style="color:green; font-weight:bold;"></p>
+        <div id="userForm">
+          <h4>🙋 আপনার নাম ও মোবাইল নাম্বার দিন:</h4>
+          <input type="text" id="userName" placeholder="আপনার নাম">
+          <input type="text" id="userPhone" placeholder="মোবাইল নাম্বার">
+          <button onclick="submitLoanRequest()">📨 সাবমিট</button>
+          <p id="submitMessage" style="color:green; font-weight:bold;"></p>
+        </div>
       </div>
+
+      <table id="scheduleTable" style="display:none;">
+        <thead>
+          <tr><th>মাস</th><th>মূলধন (৳)</th><th>সুদ (৳)</th><th>মোট কিস্তি (৳)</th><th>বাকি ঋণ (৳)</th><th>তারিখ</th></tr>
+        </thead>
+        <tbody id="scheduleBody"></tbody>
+        <tfoot>
+          <tr>
+            <td>মোট</td>
+            <td id="totalPrincipal">0.00</td>
+            <td id="totalInterest">0.00</td>
+            <td id="totalPayment">0.00</td>
+            <td>—</td>
+            <td>—</td>
+          </tr>
+        </tfoot>
+      </table>
     </div>
 
-    <table id="scheduleTable" style="display:none;">
-      <thead>
-        <tr><th>মাস</th><th>মূলধন (৳)</th><th>সুদ (৳)</th><th>মোট কিস্তি (৳)</th><th>বাকি ঋণ (৳)</th><th>তারিখ</th></tr>
-      </thead>
-      <tbody id="scheduleBody"></tbody>
-      <tfoot>
-        <tr>
-          <td>মোট</td>
-          <td id="totalPrincipal">0.00</td>
-          <td id="totalInterest">0.00</td>
-          <td id="totalPayment">0.00</td>
-          <td>—</td>
-          <td>—</td>
-        </tr>
-      </tfoot>
-    </table>
-     </div>
+    <!-- ✅ নতুন সারসংক্ষেপ সেকশন -->
+    <div id="globalSummary" class="summary">
+      <h3>🌐 সার্বিক লোনের তথ্য</h3>
+      <p id="approvedTotal">মোট অনুমোদিত লোন: </p>
+      <p id="pendingTotal">পেন্ডিং লোন: </p>
+      <p id="paidTotal">পরিশোধিত কিস্তি: </p>
+      <p id="userCount">মোট লোন ইউজার: </p>
+      <p id="pendingUserCount">পেন্ডিং ইউজার সংখ্যা: </p>
+    </div>
+
   </div>
+
   <script>
     // Set max date to today for loanStartDate input
     const loanStartInput = document.getElementById('loanStartDate');

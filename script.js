@@ -1,5 +1,5 @@
 import { db } from './firebase.js';
-import { ref, set } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+import { ref, set, get } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
 window.calculateEMI = function () {
   const amount = parseFloat(document.getElementById("amount").value);
@@ -30,7 +30,6 @@ window.calculateEMI = function () {
   const body = document.getElementById("scheduleBody");
   body.innerHTML = "";
 
-  // Calculate installment dates starting from loanStartDate + 1 month
   let baseDate = new Date(loanStartDate);
   baseDate.setMonth(baseDate.getMonth() + 1);
 
@@ -45,7 +44,7 @@ window.calculateEMI = function () {
 
     const instDate = new Date(baseDate);
     instDate.setMonth(instDate.getMonth() + (i - 1));
-    const instDateStr = instDate.toISOString().split('T')[0]; // yyyy-mm-dd format
+    const instDateStr = instDate.toISOString().split('T')[0];
 
     body.innerHTML += `<tr>
       <td>${i}ম কিস্তি</td>
@@ -78,7 +77,6 @@ window.calculateEMI = function () {
   document.getElementById("loanSummary").style.display = "block";
   document.getElementById("userForm").style.display = "block";
 
-  // Save loanData with schedule including dates
   window.loanData = {
     amount,
     fee,
@@ -119,3 +117,60 @@ window.submitLoanRequest = function () {
     document.getElementById("submitMessage").innerText = "✅ লোন রিকোয়েস্ট সফলভাবে জমা হয়েছে!";
   });
 };
+
+// সার্বিক লোন সামারি লোডার
+function loadGlobalSummary() {
+  const usersRef = ref(db, "users");
+
+  get(usersRef).then(snapshot => {
+    if (!snapshot.exists()) return;
+
+    let approvedTotal = 0;
+    let pendingTotal = 0;
+    let paidTotal = 0;
+    let userCount = 0;
+    let pendingUserCount = 0;
+
+    const users = snapshot.val();
+    Object.values(users).forEach(user => {
+      const loans = user.loans || {};
+      let userHasApproved = false;
+      let userHasPending = false;
+
+      Object.values(loans).forEach(loan => {
+        const amount = parseFloat(loan.amount) || 0;
+
+        if (loan.status === "approved") {
+          approvedTotal += amount;
+          userHasApproved = true;
+
+          loan.schedule?.forEach(inst => {
+            if (typeof inst.status === 'string' && inst.status.startsWith('approved')) {
+              paidTotal += parseFloat(inst.amount || 0);
+            }
+          });
+
+        } else if (loan.status === "pending") {
+          pendingTotal += amount;
+          userHasPending = true;
+        }
+      });
+
+      if (userHasApproved || userHasPending) {
+        userCount++;
+        if (userHasPending && !userHasApproved) pendingUserCount++;
+      }
+    });
+
+    if (document.getElementById("approvedTotal")) {
+      document.getElementById("approvedTotal").innerText = `মোট অনুমোদিত লোন: ৳${approvedTotal.toFixed(2)}`;
+      document.getElementById("pendingTotal").innerText = `পেন্ডিং লোন: ৳${pendingTotal.toFixed(2)}`;
+      document.getElementById("paidTotal").innerText = `পরিশোধিত কিস্তি: ৳${paidTotal.toFixed(2)}`;
+      document.getElementById("userCount").innerText = `মোট লোন ইউজার: ${userCount} জন`;
+      document.getElementById("pendingUserCount").innerText = `পেন্ডিং ইউজার সংখ্যা: ${pendingUserCount} জন`;
+    }
+  });
+}
+
+// ডোম লোড হলে সামারি লোড করো
+window.addEventListener("DOMContentLoaded", loadGlobalSummary);

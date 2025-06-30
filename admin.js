@@ -68,6 +68,14 @@ get(usersRef).then(snapshot => {
         <p>লোন স্ট্যাটাস: ${statusText}</p>
         ${loan.status === "pending" ? `<button onclick="approveLoan('${userKey}', '${loanId}')">Approve</button>` : ""}
         <button onclick="deleteLoan('${userKey}', '${loanId}')">❌ Delete</button>
+<div class="summary">
+  <p>📅 লোন শুরুর তারিখ: ${loan.loanStartDate || 'N/A'}</p>
+  <p>⚙️ প্রসেসিং ফি: ${loan.fee || 0}%</p>
+  <p>🤲 হাতে পাবেন: ৳${loan.netAmount || '0.00'}</p>
+  <p>📤 মোট মূলধন পরিশোধ: ৳${loan.totalPrincipal || '0.00'}</p>
+  <p>📈 মোট সুদ: ৳${loan.totalInterest || '0.00'}</p>
+  <p>📉 মোট কিস্তি: ৳${loan.totalPayment || '0.00'}</p>
+</div>
 
         <table>
           <thead>
